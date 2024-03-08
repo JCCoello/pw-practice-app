@@ -1,4 +1,5 @@
 import { test } from '@playwright/test'
+import { debug, trace } from 'console'
 
 test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:4200/')
