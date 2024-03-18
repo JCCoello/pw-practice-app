@@ -107,10 +107,10 @@ test('Assertions', async ({ page }) => {
     //General assertions
     const value = 5
     expect(value).toEqual(5) // In this very simple example, on the left you chose the element to find and on the right the value of this element (Exact value), if you notice in this assertion there is no wait
-
-    //Locator assertion
     const text = await basicFormButton.textContent()
     expect(text).toEqual("Submit")
+
+    //Locator assertion
 
     await expect(basicFormButton).toHaveText('Submit') //BTW when you put an "await" before, it will wait until 5 seconds before it gives up, different to the General assertions which will not wait
 
