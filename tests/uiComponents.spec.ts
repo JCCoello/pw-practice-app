@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { tooltip } from 'leaflet'
 import { using } from 'rxjs'
+import { Exception } from 'sass'
 
 test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:4200/')
@@ -131,7 +132,7 @@ test('Dialog Box', async ({ page }) => {   // This would be a modal from the bro
     await expect(page.locator('table tr').first()).not.toHaveText('mdo@gmail.com') // This checks if the element was in fact deleted
 })
 
-test.only('Web tables', async ({ page }) => {  // In this case we took a row from the table and modified the age
+test('Web tables', async ({ page }) => {  // In this case we took a row from the table and modified the age
     await page.getByText('Tables & Data').click()
     await page.getByText('Smart Table').click()
 
@@ -172,3 +173,86 @@ test.only('Web tables', async ({ page }) => {  // In this case we took a row fro
     }
 
 })
+
+test('datepicker', async ({ page }) => { // This picks a date from the current month
+    await page.getByText('Forms').click()
+    await page.getByText('Datepicker').click()
+
+    const calendarInputField = page.getByPlaceholder('Form Picker')
+    await calendarInputField.click()
+
+    await page.locator('[class="day-cell ng-star-inserted"]').getByText('23', { exact: true }).click()
+    await expect(calendarInputField).toHaveValue('Mar 23, 2024')
+})
+
+test('datepicker2', async ({ page }) => { // This will work only for the current month
+    await page.getByText('Forms').click()
+    await page.getByText('Datepicker').click()
+
+    const calendarInputField = page.getByPlaceholder('Form Picker')
+    await calendarInputField.click()
+
+    let date = new Date()
+    date.setDate(date.getDate() + 1)
+    const expectedDate = date.getDate().toString()
+    const expectedMonthShort = date.toLocaleString('En-US', { month: 'short' })
+    const expectedYear = date.getFullYear()
+    const dateToAssert = `${expectedMonthShort} ${expectedDate}, ${expectedYear}`
+
+    await page.locator('[class="day-cell ng-star-inserted"]').getByText(expectedDate, { exact: true }).click()
+    await expect(calendarInputField).toHaveValue(dateToAssert)
+
+})
+
+test('datepicker3', async ({ page }) => { //Here it is better written with the help of ChtaGPT and doesnt have the "within the month" limitation
+    await page.locator('text=Forms').click();
+    await page.locator('text=Datepicker').click();
+
+    const calendarInputField = page.locator('[placeholder="Form Picker"]');
+    await calendarInputField.click();
+
+    let date = new Date();
+    date.setDate(date.getDate() + 500);
+    const expectedDate = date.getDate().toString();
+    const expectedMonthShort = date.toLocaleString('en-US', { month: 'short' });
+    const expectedMonthLong = date.toLocaleString('en-US', { month: 'long' });
+    const expectedYear = date.getFullYear();
+    const dateToAssert = `${expectedMonthShort} ${expectedDate}, ${expectedYear}`;
+
+    let calendarMonthAndYear = await page.locator('nb-calendar-view-mode').textContent();
+    const expectedMonthAndYear = `${expectedMonthLong} ${expectedYear}`;
+    while (!calendarMonthAndYear.includes(expectedMonthAndYear)) { // This is the while loop
+        await page.locator('nb-calendar-pageable-navigation [data-name="chevron-right"]').click();
+        calendarMonthAndYear = await page.locator('nb-calendar-view-mode').textContent();
+    }
+
+    await page.locator(`text=${expectedDate}`).first().click();
+    await expect(calendarInputField).toHaveValue(dateToAssert);
+});
+
+test.only('sliders', async ({ page }) => { // 
+    // Update attribute This would be setting the temp with a number
+    const tempGauge = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger circle')
+    await tempGauge.evaluate(node => {
+        node.setAttribute('cx', '232.630')
+        node.setAttribute('cy', '232.630')
+    })
+    await tempGauge.click()
+
+    //Mouse movement, this would be with moving the selector
+
+    const tempBox = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger')
+    await tempBox.scrollIntoViewIfNeeded()
+
+    const box = await tempBox.boundingBox()
+    const x = box.x + box.width / 2
+    const y = box.y + box.height / 2
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.mouse.move(x + 100, y)
+    await page.mouse.move(x + 100, y + 100)
+    await page.mouse.up()
+    await expect(tempBox).toContainText('30')
+
+})
+
