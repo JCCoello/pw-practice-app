@@ -1,46 +1,41 @@
 import { Locator, Page } from "playwright/test";
-export class NavigationPage {
+import { HelperBase } from "./helperBase";
 
-    readonly page: Page
-    readonly formLayoutMenuItem: Locator
-    readonly datePickertMenuItem: Locator
-    readonly smartTableMenuItem: Locator
-    readonly toastrMenuItem: Locator
-    readonly tooltipMenuItem: Locator
+export class NavigationPage extends HelperBase {
 
     constructor(page: Page) {
-        this.page = page
-        this.formLayoutMenuItem = page.getByText('Form Layouts')
-        this.datePickertMenuItem = page.getByText('Datepicker')
-        this.smartTableMenuItem = page.getByText('Smart Table')
-        this.toastrMenuItem = page.getByText('Toastr')
-        this.tooltipMenuItem = page.getByText('Tooltip')
+        super(page)
     }
 
     async formLayoutsPage() {
         await this.selectGroupMenuItem('Forms')
-        await this.formLayoutMenuItem.click()
+        await this.page.getByText('Form Layouts').click()
+        await this.waitForNumberOfSeconds(2)
     }
 
     async datePickerPage() {
         await this.selectGroupMenuItem('Forms')
-        await this.datePickertMenuItem.click()
+        await this.page.getByText('Datepicker').click()
+        await this.waitForNumberOfSeconds(2)
 
     }
 
     async smartTablePage() {
         await this.selectGroupMenuItem('Tables & Data')
-        await this.smartTableMenuItem.click()
+        await this.page.getByText('Smart Table').click()
+        await this.waitForNumberOfSeconds(2)
     }
 
     async toastrPage() {
         await this.selectGroupMenuItem('Modal & Overlays')
-        await this.toastrMenuItem.click()
+        await this.page.getByText('Toastr').click()
+        await this.waitForNumberOfSeconds(2)
     }
 
     async tooltipPage() {
         await this.selectGroupMenuItem('Modal & Overlays')
-        await this.tooltipMenuItem.click()
+        await this.page.getByText('Tooltip').click()
+        await this.waitForNumberOfSeconds(2)
     }
 
     private async selectGroupMenuItem(groupItemTitle: string) { // Since PW runs so fast, if a thing is not shown it will see it and click on it, this way it can check if its expanded before clicking on it
